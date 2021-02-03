@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.swjtu.lang.LANG;
 import com.swjtu.trans.AbstractTranslator;
+import com.swjtu.util.FileUtil;
 import com.swjtu.util.Util;
 
 import org.apache.http.HttpEntity;
@@ -19,6 +20,7 @@ import javax.script.ScriptException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 
 public final class BaiduTranslator extends AbstractTranslator {
     private static final String url = "https://fanyi.baidu.com/v2transapi";
@@ -79,13 +81,19 @@ public final class BaiduTranslator extends AbstractTranslator {
         String result = "";
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");
         try {
-            FileReader reader = new FileReader("./tk/Baidu.js");
-            engine.eval(reader);
+            /*FileReader reader = new FileReader("./tk/Baidu.js");
+            engine.eval(reader);*/
+
+            InputStream inStream = GoogleTranslator.class
+                    .getClassLoader().getResourceAsStream("tk/Baidu.js");
+
+            engine.eval(FileUtil.getText(inStream));
+
             if (engine instanceof Invocable) {
                 Invocable invoke = (Invocable)engine;
                 result = String.valueOf(invoke.invokeFunction("token", text, gtk));
             }
-        } catch (ScriptException | NoSuchMethodException | FileNotFoundException e) {
+        } catch (ScriptException | NoSuchMethodException e) {
             e.printStackTrace();
         }
         return result;

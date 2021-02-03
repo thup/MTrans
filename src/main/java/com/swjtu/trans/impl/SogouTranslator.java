@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swjtu.lang.LANG;
 import com.swjtu.trans.AbstractTranslator;
+import com.swjtu.util.FileUtil;
 import com.swjtu.util.Util;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -17,6 +18,7 @@ import javax.script.ScriptException;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 
 public final class SogouTranslator extends AbstractTranslator {
     private static final String url = "http://fanyi.sogou.com/reventondc/translate";
@@ -82,13 +84,19 @@ public final class SogouTranslator extends AbstractTranslator {
         String result = "";
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");
         try {
-            FileReader reader = new FileReader("./tk/Sogou.js");
-            engine.eval(reader);
+            /*FileReader reader = new FileReader("./tk/Sogou.js");
+            engine.eval(reader);*/
+
+            InputStream inStream = GoogleTranslator.class
+                    .getClassLoader().getResourceAsStream("tk/Sogou.js");
+
+            engine.eval(FileUtil.getText(inStream));
+
             if (engine instanceof Invocable) {
                 Invocable invoke = (Invocable)engine;
                 result = String.valueOf(invoke.invokeFunction("token"));
             }
-        } catch (ScriptException | NoSuchMethodException | FileNotFoundException e) {
+        } catch (ScriptException | NoSuchMethodException e) {
             e.printStackTrace();
         }
         return result;

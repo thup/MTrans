@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.swjtu.lang.LANG;
 import com.swjtu.trans.AbstractTranslator;
+import com.swjtu.util.FileUtil;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -14,8 +15,10 @@ import org.apache.http.util.EntityUtils;
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 
 public final class GoogleTranslator extends AbstractTranslator {
     private static final String url = "https://translate.google.cn/translate_a/single";
@@ -92,8 +95,12 @@ public final class GoogleTranslator extends AbstractTranslator {
         String tk = "";
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");
         try {
-            FileReader reader = new FileReader("./tk/Google.js");
-            engine.eval(reader);
+
+            InputStream inStream = GoogleTranslator.class
+                    .getClassLoader().getResourceAsStream("tk/Google.js");
+
+            //FileReader reader = new FileReader(new File(inStream));
+            engine.eval(FileUtil.getText(inStream));
 
             if (engine instanceof Invocable) {
                 Invocable invoke = (Invocable)engine;

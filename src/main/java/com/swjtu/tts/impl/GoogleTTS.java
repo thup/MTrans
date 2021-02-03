@@ -1,12 +1,15 @@
 package com.swjtu.tts.impl;
 
 import com.swjtu.lang.LANG;
+import com.swjtu.trans.impl.GoogleTranslator;
 import com.swjtu.tts.AbstractTTS;
+import com.swjtu.util.FileUtil;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.FileReader;
+import java.io.InputStream;
 
 public final class GoogleTTS extends AbstractTTS{
     private final static String url = "https://translate.google.cn/translate_tts";
@@ -43,8 +46,14 @@ public final class GoogleTTS extends AbstractTTS{
         String tk = "";
         ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");
         try {
-            FileReader reader = new FileReader("./tk/Google.js");
-            engine.eval(reader);
+            /*FileReader reader = new FileReader("./tk/Google.js");
+            engine.eval(reader);*/
+
+            InputStream inStream = GoogleTranslator.class
+                    .getClassLoader().getResourceAsStream("tk/Google.js");
+
+            //FileReader reader = new FileReader(new File(inStream));
+            engine.eval(FileUtil.getText(inStream));
 
             if (engine instanceof Invocable) {
                 Invocable invoke = (Invocable)engine;
